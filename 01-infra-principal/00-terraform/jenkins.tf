@@ -84,6 +84,12 @@ resource "local_file" "ansible_hosts"{
 }
 
 # terraform refresh para mostrar o ssh
+output "ssh_pub_key_path" {
+  sensitive = true
+  description = "output para ser utilizado pelo script de destroy"
+  value = var.ssh_pub_key_path
+}
+
 output "jenkins" {
   value = [
     "jenkins",
