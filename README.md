@@ -49,14 +49,17 @@ Plataformas e Tecnologias que utilizamos para desenvolver este projeto:
 
   Construção de pipelines de desenvolvimento, stage e produção, com tecnologias estudadas no treinamento, para provisionar um cluster K8s multi master onde é feito o deployment de uma aplicação Java Spring Boot que acessa o banco de dados mysql em uma rede privada.
   
-### Utilização:
+### Como Executar:
 
-**1.** Faça o clone do repositorio para sua maquina;
+**1.** Faça o **clone** do repositorio abaixo para sua maquina;
 
 (https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final)
 
-**2.** ;
+**2.** Dentro da pasta **"01-infra-principal"** execute o shell **deploy.sh**;
 
+**3.** Informe o caminho da **chave privada** no comando (**Ex:** $ **./deploy.sh /home/ubuntu/id_rsa**);
+
+**4.** Aguarde a **"mágica"** acontecer 😁
 
 ### Agradecimentos
 - Ao [**Danilo Aparecido**](https://github.com/didox) e **Regina** da **Gama** por todo o apoio;
