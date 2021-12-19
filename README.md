@@ -26,7 +26,7 @@ Exercitar os conhecimentos adquiridos do treinamento da Gama Academy:
 Para acessar o **repositório do projeto**, clique aqui: [grupo7-turma3-desafio-final](https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final)</br>
 
 ### Desenvolvedores
-|[<img src="https://avatars.githubusercontent.com/u/15928493?v=4" width=115 > <br> <sub> Leonardo Contini </sub>](https://github.com/lcontini?tab=repositories) | [<img src="https://avatars.githubusercontent.com/u/67441115?v=4" width=115 > <br> <sub> Lúcio José Cabianca </sub>](https://github.com/LUJOCALX?tab=repositories) |
+|<sub>[<img src="https://avatars.githubusercontent.com/u/15928493?v=4" width=115 > <br> <sub> Leonardo Contini </sub>](https://github.com/lcontini?tab=repositories) | [<img src="https://avatars.githubusercontent.com/u/67441115?v=4" width=115 > <br> <sub> Lúcio José Cabianca </sub>](https://github.com/LUJOCALX?tab=repositories) </sub>|
 | -------- | -------- | -------- |-------- | -------- |
 
 ## Tecnologias Utilizadas
