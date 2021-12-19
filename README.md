@@ -59,5 +59,5 @@ Plataformas e Tecnologias que utilizamos para desenvolver este projeto:
 
 
 ### Agradecimentos
-- [**Danilo Aparecido**](https://github.com/didox) e **Regina da Gama** por todo o apoio;
+- Ao [**Danilo Aparecido**](https://github.com/didox) e **Regina** da **Gama** por todo o apoio;
 - Ao **Itaú/DOTI** e aos **colegas do treinamento** que contribuiram bastante para um aprendizado ainda maior;
