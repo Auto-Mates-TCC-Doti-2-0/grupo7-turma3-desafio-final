@@ -40,4 +40,5 @@ data:
 ANSIBLEPLAYBOOK
 
 echo "Executando playbook ansible"
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionarApp.yml -u ubuntu --private-key $SSH_KEY_PATH --extra-vars "environment=$environment"--check
+echo "$environment"
+ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionarApp.yml -u ubuntu --private-key $SSH_KEY_PATH --extra-vars "environment=$environment" --check

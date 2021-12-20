@@ -55,12 +55,20 @@
 
     - name: "Criando senha root mysql"
       become: yes
-      mysql_user:
-        name: "{{ USER }}"
-        host: localhost
-        password: "{{ PASSWORD }}"
+      ignore_errors: yes
+      mysql_user:  
+        name: "root"
+        host: "{{ item }}" 
+        password: "{{ lookup('env', 'PASSWORD') }}"
         priv: "*.*:ALL,GRANT"
         state: present
+        check_implicit_admin: true
+      with_items:  
+      - '%'
+      - 127.0.0.1  
+      - ::1  
+      - localhost
+
 
     - name: "Copia mysqld.cnf para os servidores"
       copy:
