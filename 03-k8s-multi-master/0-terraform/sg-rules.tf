@@ -19,7 +19,7 @@ resource "aws_security_group_rule" "acessos_workers_masters" {
 
 resource "aws_security_group_rule" "acessos_master_rule_tcp" {
   type             = "ingress"
-  description      = "Libera acessos a aplicacao nodejs via masters"
+  description      = "Libera acessos as portas de aplicacao via masters"
   from_port        = 30000
   to_port          = 32767
   protocol         = "tcp"

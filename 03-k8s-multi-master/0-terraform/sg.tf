@@ -1,7 +1,7 @@
 resource "aws_security_group" "acessos_masters" {
-  name        = "k8s-acessos_masters-${var.meu_nome}"
+  name        = "k8s-acessos_masters"
   description = "acessos inbound traffic"
-  vpc_id = var.vpc_id
+  vpc_id = data.terraform_remote_state.infra_principal_remote_state.outputs.vpc_id
   
   egress = [
     {
@@ -18,14 +18,15 @@ resource "aws_security_group" "acessos_masters" {
   ]
 
   tags = {
-    Name = "acessos_masters-${var.meu_nome}"
+    Name = "k8s_acessos_masters"
+    Group = "Grupo7"
   }
 }
 
 resource "aws_security_group" "acessos_haproxy" {
-  name        = "k8s-haproxy-${var.meu_nome}"
+  name        = "k8s-haproxy"
   description = "acessos inbound traffic"
-  vpc_id = var.vpc_id
+  vpc_id = data.terraform_remote_state.infra_principal_remote_state.outputs.vpc_id
   
   egress = [
     {
@@ -42,14 +43,15 @@ resource "aws_security_group" "acessos_haproxy" {
   ]
 
   tags = {
-    Name = "allow_haproxy_ssh-${var.meu_nome}"
+    Name = "k8s_allow_haproxy_ssh"
+    Group = "Grupo7"
   }
 }
 
 resource "aws_security_group" "acessos_workers" {
-  name        = "k8s-workers-${var.meu_nome}"
+  name        = "k8s-workers"
   description = "acessos inbound traffic"
-  vpc_id = var.vpc_id
+  vpc_id = data.terraform_remote_state.infra_principal_remote_state.outputs.vpc_id
   
   egress = [
     {
@@ -66,6 +68,7 @@ resource "aws_security_group" "acessos_workers" {
   ]
 
   tags = {
-    Name = "acessos_workers-${var.meu_nome}"
+    Name = "k8s_acessos_workers"
+    Group = "Grupo7"
   }
 }

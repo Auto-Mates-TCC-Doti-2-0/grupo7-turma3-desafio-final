@@ -7,15 +7,25 @@
 #### idéia para buscar itens do debugger do ansible ####
 # | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'//g" | sed "s/'t//g" | sed "s/,//g"
 
+if [ -z $ami_id ]
+then
+      echo "É necessário informar o ID da ami a ser utilizado."
+      echo "Ex via shell: $ ami_id=\"ami-0c5babde7262e53c8\" ./deploy.sh"
+      exit
+fi
+
 cd 0-terraform
 terraform init
-terraform apply -auto-approve
+TF_VAR_ami_id=$ami_id terraform apply -auto-approve
 
-SLEEPTIME=5
-echo  "Aguardando $SLEEPTIME segundos para finalizar a criação das maquinas ..."
-sleep $SLEEPTIME
+echo  "Aguardando 10 segundos para finalizar a criação das maquinas ..."
+sleep 10
 
-SSH_KEY_PATH="~/.ssh/id_rsa"
+if [ -z $SSH_KEY_PATH ]; then
+    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+fi
+# SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
+
 ID_M1=$(terraform output | grep 'k8s-master 1 -' | awk '{print $4;exit}')
 ID_M1_DNS=$(terraform output | grep 'k8s-master 1 -' | awk '{print $9;exit}' | cut -b 8-)
 
@@ -26,8 +36,8 @@ ID_M3=$(terraform output | grep 'k8s-master 3 -' | awk '{print $4;exit}')
 ID_M3_DNS=$(terraform output | grep 'k8s-master 3 -' | awk '{print $9;exit}' | cut -b 8-)
 
 
-ID_HAPROXY=$(terraform output | grep 'k8s_proxy -' | awk '{print $3;exit}')
-ID_HAPROXY_DNS=$(terraform output | grep 'k8s_proxy -' | awk '{print $8;exit}' | cut -b 8-)
+ID_HAPROXY=$(terraform output | grep 'k8s_proxy 1 -' | awk '{print $4;exit}')
+ID_HAPROXY_DNS=$(terraform output | grep 'k8s_proxy 1 -' | awk '{print $9;exit}' | cut -b 8-)
 
 
 ID_W1=$(terraform output | grep 'k8s-workers 1 -' | awk '{print $4;exit}')
@@ -56,7 +66,7 @@ $ID_W1_DNS
 $ID_W2_DNS
 [ec2-k8s-w3]
 $ID_W3_DNS
-" > ../2-ansible/01-k8s-install-masters_e_workers/hosts
+" > ../2-ansible/hosts
 
 echo "
 global
@@ -107,7 +117,7 @@ backend k8s-masters
         server k8s-master-1 $ID_M2:6443 check fall 3 rise 2 # IP ec2 Cluster Master k8s - 2 
         server k8s-master-2 $ID_M3:6443 check fall 3 rise 2 # IP ec2 Cluster Master k8s - 3 
         
-" > ../2-ansible/01-k8s-install-masters_e_workers/haproxy/haproxy.cfg
+" > ../2-ansible/haproxy/haproxy.cfg
 
 
 echo "
@@ -121,17 +131,17 @@ ff00::0 ip6-mcastprefix
 ff02::1 ip6-allnodes
 ff02::2 ip6-allrouters
 ff02::3 ip6-allhosts
-" > ../2-ansible/01-k8s-install-masters_e_workers/host/hosts
+" > ../2-ansible/host/hosts
 
 
-cd ../2-ansible/01-k8s-install-masters_e_workers
+cd ../2-ansible
 
 ANSIBLE_OUT=$(ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionar.yml -u ubuntu --private-key $SSH_KEY_PATH)
 
-#### Mac ###
-#K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
-#K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
-#### Linix ###
+### Mac ###
+K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
+K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
+### Linix ###
 K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
 K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
 
@@ -183,3 +193,17 @@ cat <<EOF > 2-provisionar-k8s-master-auto-shell.yml
 EOF
 
 ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts 2-provisionar-k8s-master-auto-shell.yml -u ubuntu --private-key $SSH_KEY_PATH
+
+cat <<SCRIPTTESTE > ../teste.sh
+#!/bin/bash
+echo "Validando status dos nodes"
+STATUS_NODES=\$(ssh -i $SSH_KEY_PATH -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@$ID_M1_DNS sudo kubectl get nodes -o wide)
+echo "\$STATUS_NODES"
+
+if \$(echo \$STATUS_NODES| grep -q NotReady) ; then
+    echo "Um ou mais nodes com status NotReady"
+else
+    echo "Todos os nodes estão com status Ready"
+fi
+SCRIPTTESTE
+chmod +x ../teste.sh

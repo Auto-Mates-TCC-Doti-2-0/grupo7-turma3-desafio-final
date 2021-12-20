@@ -8,11 +8,13 @@ data "aws_ami" "ami_ubuntu" {
   owners = ["099720109477"]
 }
 
+
 resource "aws_instance" "ec2_jenkins" {
   ami           = data.aws_ami.ami_ubuntu.id
   instance_type = "t2.large"
   subnet_id = aws_subnet.subnet_pub["subnet1"].id
   key_name      = aws_key_pair.key_pair_grupo7.key_name
+  # iam_instance_profile = "aws-cli-ec2" # Necessário associar manualmente via painel
   associate_public_ip_address = true
   root_block_device {
     delete_on_termination = true
@@ -81,22 +83,4 @@ resource "local_file" "ansible_hosts"{
     [ec2-jenkins]
     ${aws_instance.ec2_jenkins.public_dns}
     ANSIBLEHOSTS
-}
-
-# terraform refresh para mostrar o ssh
-output "ssh_pub_key_path" {
-  sensitive = true
-  description = "output para ser utilizado pelo script de destroy"
-  value = var.ssh_pub_key_path
-}
-
-output "jenkins" {
-  value = [
-    "jenkins",
-    "id: ${aws_instance.ec2_jenkins.id}",
-    "private: ${aws_instance.ec2_jenkins.private_ip}",
-    "public: ${aws_instance.ec2_jenkins.public_ip}",
-    "public_dns: ${aws_instance.ec2_jenkins.public_dns}",
-    "ssh -i ${trimsuffix(var.ssh_pub_key_path, ".pub")} ubuntu@${aws_instance.ec2_jenkins.public_dns}"
-  ]
 }

@@ -4,6 +4,13 @@
   tasks:
     - name: "Download pacote jenkins"
       shell: wget -qO - https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add -
+      # become: true
+      # apt_key:
+      #   url: https://pkg.jenkins.io/debian-stable/jenkins.io.key
+      #   state: present
+      # get_url:
+      #   url: "https://br.wordpress.org/latest-pt_BR.zip"
+      #   dest: "/tmp/latest-pt_BR.zip"
 
     - name: "Configura hostname jenkins"
       shell: hostname jenkins && echo "jenkins" > /etc/hostname
@@ -12,10 +19,12 @@
       shell: "apt-get update"
 
     - name: "Instala mvn"
-      shell: "sudo apt install maven -y"
+      become: true
+      shell: "apt install maven -y"
 
     - name: "Instala unzip"
-      shell: "sudo apt install unzip -y"
+      become: true
+      shell: "apt install unzip -y"
 
     - name: "Instala awscli"
       shell: "apt install awscli -y"
@@ -55,16 +64,19 @@
       shell: sudo sh -c 'echo deb http://pkg.jenkins-ci.org/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
   
     - name: "Install terraform passo 1"
-      shell: sudo apt-get update && sudo apt-get install -y gnupg software-properties-common curl
+      become: true
+      shell: apt-get update && apt-get install -y gnupg software-properties-common curl
 
     - name: "Install terraform passo 2"
       shell: curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo apt-key add -
 
     - name: "Install terraform passo 3"
-      shell: sudo apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+      become: true
+      shell: apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 
     - name: "Install terraform passo 4"
-      shell: sudo apt-get update && sudo apt-get install terraform -y
+      become: true
+      shell: apt-get update && apt-get install terraform -y
 
     - name: "Instala jenkins"
       shell: "apt-get install jenkins -y"
