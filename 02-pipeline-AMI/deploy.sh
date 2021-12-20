@@ -5,7 +5,7 @@ if [ -z $SSH_KEY_PATH ]; then
 fi
 
 
-cd ./terraform
+cd 02-pipeline-AMI/terraform
 terraform init
 TF_VAR_ssh_key_path=$SSH_KEY_PATH terraform apply -auto-approve
 

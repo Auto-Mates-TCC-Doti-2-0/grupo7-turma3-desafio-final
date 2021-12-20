@@ -1,32 +1,39 @@
 pipeline {
+    
     agent any
-
     stages {
         stage('Git Checkout') {
             steps {
-                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
+                git credentialsId: 'git-ssh-private-key',
+                    url: 'git@github.com:Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', 
+                    branch: 'main'
             }
         }
         stage('Constroi instancia EC2 Template') {
             steps {
-                sh "./deploy.sh"
+                sh "02-pipeline-AMI/deploy.sh"
             }
         }
         stage('Faz o build da nova AMI') {
             steps {
-                def ami_id = sh returnStdout: true, script "./build-ami.sh"
+                script {
+                    def ami_id = sh returnStdout: true, script "02-pipeline-AMI/build-ami.sh"
+                    echo ami_id
+                }
             }
         }
         stage('Valida AMI na AWS') {
             steps {
-                def versao = sh "git describe --tags $(git rev-list --tags --max-count=1)"
-                echo "Validando AMI versão $versao"
-                sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":*${versao}"'
+                script {
+                    def versao = sh "git describe --tags \$(git rev-list --tags --max-count=1)"
+                    echo "Validando AMI versão ${versao}"
+                    sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":*${versao}"'
+                }
             }
         }
         stage('Destroi instancia EC2 template') {
             steps {
-                sh "./destroy.sh"
+                sh "02-pipeline-AMI/destroy.sh"
             }
         }
     }
