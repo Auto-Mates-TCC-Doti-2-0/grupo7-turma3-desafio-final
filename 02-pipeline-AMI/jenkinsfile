@@ -1,0 +1,31 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Clone repo') {
+            steps {
+                git url: 'https://github.com/weslleyfs/Wes-Desafio-Final-DEVOPS.git', branch: 'main'
+            }
+        }
+        stage('Build EC2') {
+            steps {
+                sh "Build_AMI_AWS/deploy.sh"
+            }
+        }
+        stage('Build AMI') {
+            steps {
+                def ami_id = sh returnStdout: true, script "Build_AMI_AWS/package-ami.sh"
+            }
+        }
+        stage('Valida AMI na AWS') {
+            steps {
+                sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":"'
+            }
+        }
+        stage('Destroy Test EC2') {
+            steps {
+                sh "Build_AMI_AWS/destroy.sh"
+            }
+        }
+    }
+}
