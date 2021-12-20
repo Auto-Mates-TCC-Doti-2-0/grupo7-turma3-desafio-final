@@ -1,6 +1,6 @@
 pipeline {
-    
     agent any
+    
     stages {
         stage('Git Checkout') {
             steps {
@@ -17,8 +17,9 @@ pipeline {
         stage('Faz o build da nova AMI') {
             steps {
                 script {
-                    def ami_id = sh returnStdout: true, script "02-pipeline-AMI/build-ami.sh"
-                    echo ami_id
+                    // def ami_id = sh returnStdout: true, script "02-pipeline-AMI/build-ami.sh"
+                    // echo ami_id
+                    sh "02-pipeline-AMI/build-ami.sh"
                 }
             }
         }
@@ -27,7 +28,7 @@ pipeline {
                 script {
                     def versao = sh "git describe --tags \$(git rev-list --tags --max-count=1)"
                     echo "Validando AMI versão ${versao}"
-                    sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":*${versao}"'
+                    sh 'aws ec2 describe-images | grep "\"Name\":*${versao}"'
                 }
             }
         }

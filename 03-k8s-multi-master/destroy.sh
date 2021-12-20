@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd 0-terraform
+cd  03-k8s-multi-master/0-terraform
 terraform init
 TF_VAR_ami_id=$(terraform output ami_id) terraform destroy -auto-approve

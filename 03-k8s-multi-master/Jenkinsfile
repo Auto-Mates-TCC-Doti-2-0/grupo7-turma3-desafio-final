@@ -13,18 +13,17 @@ pipeline {
         stage("Prepara infra para o cluster K8S multi-master') {
             steps {
                 echo "construindo o cluster terraform utilizando a ami ${ami_id}"
-                sh "./deploy.sh"
+                sh " 03-k8s-multi-master/deploy.sh"
             }
         }
         stage('Testa estado dos master e worker nodes') {
             steps {
                 echo "Validando status dos nodes"
-                def test_out = sh returnStdout: true, script './teste.sh'
+                def test_out = sh ' 03-k8s-multi-master/teste.sh'
                 if ( test_out.contains("ERRO") ) {
-                    error(test_out)
+                    error("${test_out}")
                 }
             }
         }
-        
     }
 }

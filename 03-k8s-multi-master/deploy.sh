@@ -14,7 +14,7 @@ then
       exit
 fi
 
-cd 0-terraform
+cd  03-k8s-multi-master/0-terraform
 terraform init
 TF_VAR_ami_id=$ami_id terraform apply -auto-approve
 
@@ -22,7 +22,7 @@ echo  "Aguardando 10 segundos para finalizar a criação das maquinas ..."
 sleep 10
 
 if [ -z $SSH_KEY_PATH ]; then
-    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+    SSH_KEY_PATH="/var/lib/jenkins/chave-privada.pem"
 fi
 # SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
 
