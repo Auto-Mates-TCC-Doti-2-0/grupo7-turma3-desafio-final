@@ -77,7 +77,7 @@ resource "aws_eip" "eip_natgw" {
 }
 
 resource "aws_nat_gateway" "natgw_main" {
-  for_each = aws_subnet.subnet_priv
+  for_each = aws_subnet.subnet_pub
 
   allocation_id = aws_eip.eip_natgw[each.key].id
   subnet_id     = each.value.id
