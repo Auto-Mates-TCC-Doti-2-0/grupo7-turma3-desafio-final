@@ -1,6 +1,6 @@
 pipeline {
     agent any
-    
+
     stages {
         stage('Git Checkout') {
             steps {
@@ -26,9 +26,9 @@ pipeline {
         stage('Valida AMI na AWS') {
             steps {
                 script {
-                    def versao = sh "git describe --tags \$(git rev-list --tags --max-count=1)"
-                    echo "Validando AMI versão ${versao}"
-                    sh 'aws ec2 describe-images | grep "\"Name\":*${versao}"'
+                    VERSAO = sh(returnStdout: true, script: "git describe --tags \$(git rev-list --tags --max-count=1)")
+                    echo "Validando AMI versão ${VERSAO}"
+                    sh 'aws --region sa-east-1 ec2 describe-images --filters "Name=tag:Group,Values=Grupo7" | grep "\"Name\":*${VERSAO}"'
                 }
             }
         }
