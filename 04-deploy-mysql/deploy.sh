@@ -27,8 +27,9 @@ ANSIBLEHOSTS
 
 cat <<SCRIPTTESTE > ../teste.sh
 #!/bin/bash
+cd ./terraform
 for i in $ID_DEV $ID_STAGE $ID_PROD; do
-    \$VALIDA_MYSQL=\$(terraform output | grep \$i | awk -F' - ' '{print $3" mysql -u$USER -p$PASSWORD $DATABASE select * from administradores;"}' | sh)
+    \$VALIDA_MYSQL=\$(terraform output | grep \$i | sed -e "s/\",//g" | awk -F' - ' '{print \$3" \"mysql -u$USER -p$PASSWORD $DATABASE --execute=\'select * from administradores;\'\""}' | sh)
     if \$(echo \$VALIDA_MYSQL| grep -q grupo7) ; then
         echo "Instancia \$i e dump validados com sucesso"
     else

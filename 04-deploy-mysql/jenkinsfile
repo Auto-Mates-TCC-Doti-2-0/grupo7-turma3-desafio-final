@@ -23,10 +23,10 @@ pipeline {
                 sh "./config-mysql.sh"
             }
         }
-        stage('Testa acesso ao mysql e valida realização do dump') {
-            steps {
-                sh "./teste-mysql.sh"
-            }
-        }               
+        // stage('Testa acesso ao mysql e valida realização do dump') {
+        //     steps {
+        //         sh "./teste-mysql.sh"
+        //     }
+        // }               
     }
 }
