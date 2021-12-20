@@ -8,11 +8,13 @@ data "aws_ami" "ami_ubuntu" {
   owners = ["099720109477"]
 }
 
+
 resource "aws_instance" "ec2_jenkins" {
   ami           = data.aws_ami.ami_ubuntu.id
   instance_type = "t2.large"
   subnet_id = aws_subnet.subnet_pub["subnet1"].id
   key_name      = aws_key_pair.key_pair_grupo7.key_name
+  # iam_instance_profile = "aws-cli-ec2" # Necessário associar manualmente via painel
   associate_public_ip_address = true
   root_block_device {
     delete_on_termination = true

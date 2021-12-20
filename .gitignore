@@ -33,8 +33,11 @@ override.tf.json
 
 **/*ansible/hosts*
 
-## Auto-generated test scripts
+## Auto-generated files and scripts
 **/teste.sh
+03-k8s-multi-master/**/hosts
+03-k8s-multi-master/**/haproxy.cfg
+03-k8s-multi-master/**/2-provisionar*
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
 # example: *tfplan*
 
