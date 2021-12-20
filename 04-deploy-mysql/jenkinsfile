@@ -27,8 +27,8 @@ pipeline {
         }
         stage('Testa acesso ao mysql e valida realização do dump') {
             steps {
-                sh "04-deploy-mysql/teste-mysql.sh"
+                sh "04-deploy-mysql/teste.sh"
             }
-        }               
+        }
     }
 }
