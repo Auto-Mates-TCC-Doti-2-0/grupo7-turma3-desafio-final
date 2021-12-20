@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
 if [ -z $SSH_KEY_PATH ]; then
     SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
 fi
