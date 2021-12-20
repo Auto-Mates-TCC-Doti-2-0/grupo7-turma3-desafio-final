@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: 'ami_id', defaultValue: '', description: 'Digite o ID da AMI que será utilizad para o deploy')
         string(name: 'USER', defaultValue: '', description: 'Digite o usuario do banco de dados "root"')
-        string(name: 'PASSWORD', defaultValue: '', description: 'Digite a senha do banco de dados "Senha&12_torne00"')
+        string(name: 'PASSWORD', defaultValue: '', description: 'Digite a senha do banco de dados "Senha12_torne00"')
         string(name: 'DATABASE', defaultValue: '', description: 'Digite o nome da database "SpringWebYoutube"')
     } 
     stages {
@@ -23,10 +23,10 @@ pipeline {
                 sh "./config-mysql.sh"
             }
         }
-        // stage('Testa acesso ao mysql e valida realização do dump') {
-        //     steps {
-        //         sh "./teste-mysql.sh"
-        //     }
-        // }               
+        stage('Testa acesso ao mysql e valida realização do dump') {
+            steps {
+                sh "./teste-mysql.sh"
+            }
+        }               
     }
 }
