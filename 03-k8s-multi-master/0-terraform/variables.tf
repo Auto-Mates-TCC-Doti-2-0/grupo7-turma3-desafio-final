@@ -5,7 +5,7 @@ variable "ami_id" {
 
 variable "ssh_key_path" {
   type    = string
-  default = "/home/ubuntu/.ssh/chave-privada.pem"
+  default = "/var/lib/jenkins/chave-privada.pem"
 }
 
 # variable key_pair_name {
