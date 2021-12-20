@@ -7,7 +7,9 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
+                git credentialsId: 'git-ssh-private-key',
+                    url: 'git@github.com:Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', 
+                    branch: 'main'
             }
         }
         stage("Prepara infra para o cluster K8S multi-master') {

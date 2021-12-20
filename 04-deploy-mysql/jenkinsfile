@@ -10,22 +10,24 @@ pipeline {
     stages {
         stage('Git Checkout') {
             steps {
-                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
+                git credentialsId: 'git-ssh-private-key',
+                    url: 'git@github.com:Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', 
+                    branch: 'main'
             }
         }
         stage('Constroi instancia ec2 priv - MySQL') {
             steps {
-                sh "./deploy.sh"
+                sh "04-deploy-mysql/deploy.sh"
             }
         }
         stage('Realiza configuracao da instancia e do Mysql') {
             steps {
-                sh "./config-mysql.sh"
+                sh "04-deploy-mysql/config-mysql.sh"
             }
         }
         stage('Testa acesso ao mysql e valida realização do dump') {
             steps {
-                sh "./teste-mysql.sh"
+                sh "04-deploy-mysql/teste-mysql.sh"
             }
         }               
     }
