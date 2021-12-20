@@ -20,10 +20,12 @@ pipeline {
         }
         stage("Testa estado dos master e worker nodes") {
             steps {
-                echo "Validando status dos nodes"
-                test_out = sh(returnStdout: true, script: "03-k8s-multi-master/teste.sh")
-                if ( test_out.contains("ERRO") ) {
-                    error("${test_out}")
+                script {
+                    echo "Validando status dos nodes"
+                    test_out = sh(returnStdout: true, script: "03-k8s-multi-master/teste.sh")
+                    if ( test_out.contains("ERRO") ) {
+                        error("${test_out}")
+                    }
                 }
             }
         }
