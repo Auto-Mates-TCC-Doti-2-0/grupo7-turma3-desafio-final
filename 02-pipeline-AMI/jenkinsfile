@@ -28,7 +28,7 @@ pipeline {
                 script {
                     VERSAO = sh(returnStdout: true, script: "git describe --tags \$(git rev-list --tags --max-count=1)")
                     echo "Validando AMI versão ${VERSAO}"
-                    sh 'aws --region sa-east-1 ec2 describe-images --filters "Name=tag:Group,Values=Grupo7" | grep "\"Name\":*${VERSAO}"'
+                    sh "aws --region sa-east-1 ec2 describe-images --filters 'Name=tag:Group,Values=Grupo7' | grep '\"Name\":' | grep ${VERSAO}"
                 }
             }
         }
