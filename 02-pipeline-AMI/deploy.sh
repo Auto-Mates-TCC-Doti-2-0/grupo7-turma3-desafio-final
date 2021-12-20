@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z $SSH_KEY_PATH ]; then
-    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+    SSH_KEY_PATH="/var/lib/jenkins/chave-privada.pem"
 fi
 
 
