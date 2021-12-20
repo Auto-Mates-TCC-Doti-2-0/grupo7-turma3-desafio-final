@@ -55,11 +55,15 @@ Plataformas e Tecnologias que utilizamos para desenvolver este projeto:
 
 (https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final)
 
-**2.** Dentro da pasta **"01-infra-principal"** execute o shell **deploy.sh**;
+**2.** Dentro da pasta **"00-estrutura-state-terraform"** execute o shell **deploy.sh**;
 
-**3.** Informe o caminho da **chave privada** no comando (**Ex:** $ **./deploy.sh /home/ubuntu/id_rsa**);
+**3.** Dentro da pasta **"01-infra-principal"** execute o seguintes passos
+- Crie seu par de chaves com o comando **ssh-keygen** e no caminho, especifique o valor **~/.ssh/key-pair-grupo7**
+- Execute o script **deploy.sh**;
 
-**4.** Aguarde a **"mágica"** acontecer 😁
+**4.** Siga as instruções no log de execução para configurar o **Jenkins**;
+
+**5.** Aguarde a **"mágica"** acontecer 😁
 
 ### Agradecimentos
 - Ao [**Danilo Aparecido**](https://github.com/didox) e **Regina** da **Gama** por todo o apoio;

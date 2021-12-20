@@ -8,7 +8,7 @@
 # | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'//g" | sed "s/'t//g" | sed "s/,//g"
 
 if [ -z $SSH_KEY_PATH ]; then
-    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+    SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
 fi
 
 cd 00-terraform
