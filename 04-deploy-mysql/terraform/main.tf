@@ -2,7 +2,7 @@ resource "aws_instance" "mysql" {
   for_each = var.db_environment
 
   ami                         = var.ami_id
-  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.pub_subnet_ids, each.key)
+  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.priv_subnet_ids, each.key)
   instance_type               = "t3.medium"
   key_name                    = data.terraform_remote_state.infra_principal_remote_state.outputs.key_pair_name
   associate_public_ip_address = true
