@@ -7,12 +7,8 @@
 #### idéia para buscar itens do debugger do ansible ####
 # | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'//g" | sed "s/'t//g" | sed "s/,//g"
 
-SSH_KEY_PATH=$1
-if [ -z $SSH_KEY_PATH ]
-then
-      echo "É necessário informar o caminho da chave privada no comando."
-      echo "Ex: $ ./deploy.sh /home/ubuntu/id_rsa"
-      exit
+if [ -z $SSH_KEY_PATH ]; then
+    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
 fi
 
 cd 00-terraform

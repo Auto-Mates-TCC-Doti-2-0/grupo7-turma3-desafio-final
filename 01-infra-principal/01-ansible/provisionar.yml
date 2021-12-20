@@ -27,6 +27,7 @@
       shell: "apt install unzip -y"
 
     - name: "Instala awscli"
+      become: true
       shell: "apt install awscli -y"
       
     - name: "Instala java"

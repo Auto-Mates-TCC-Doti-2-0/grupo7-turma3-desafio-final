@@ -1,0 +1,30 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'ami_id', defaultValue: '', description: 'Digite o ID da AMI que será utilizad para o deploy')
+    } 
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
+            }
+        }
+        stage("Prepara infra para o cluster K8S multi-master') {
+            steps {
+                echo "construindo o cluster terraform utilizando a ami ${ami_id}"
+                sh "./deploy.sh"
+            }
+        }
+        stage('Testa estado dos master e worker nodes') {
+            steps {
+                echo "Validando status dos nodes"
+                def test_out = sh returnStdout: true, script './teste.sh'
+                if ( test_out.contains("ERRO") ) {
+                    error(test_out)
+                }
+            }
+        }
+        
+    }
+}

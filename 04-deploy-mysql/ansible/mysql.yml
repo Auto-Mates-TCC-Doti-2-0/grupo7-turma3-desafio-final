@@ -1,0 +1,100 @@
+- hosts: 
+  - ec2-mysql-dev
+  tasks:
+    - name: "Configura hostname ec2-mysql-dev"
+      shell: hostname ec2-mysql-dev && echo "ec2-mysql-dev" > /etc/hostname
+      become: yes
+# ---
+- hosts: 
+  - ec2-mysql-stage
+
+  tasks:
+    - name: "Configura hostname ec2-mysql-stage"
+      shell: hostname ec2-mysql-stage && echo "ec2-mysql-stage" > /etc/hostname
+      become: yes
+# ---
+- hosts: 
+  - ec2-mysql-prod
+  tasks:
+    - name: "Configura hostname ec2-mysql-prod"
+      shell: hostname ec2-mysql-prod && echo "ec2-mysql-prod" > /etc/hostname
+      become: yes
+# ---
+- hosts: all
+  environment:
+    PASSWORD: "{{ PASSWORD }}"
+    DATABASE: "{{ DATABASE }}"
+    USER: "{{ USER }}"
+
+  tasks:  
+    - name: "Roda: sudo apt update"
+      become: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #Um dia
+    
+    - name: "Aguarda finalizar o update"
+      shell: "sleep 15"
+
+    - name: "Instala pacotes em lote"
+      apt:
+        name: "{{ item }}"
+        state: latest
+      become: yes
+      with_items:
+        - mysql-server
+        - python3-mysqldb
+      
+    
+    - name: "Lavanta serviço do mysql"
+      become: yes
+      service:
+        name: mysql
+        state: started
+
+    - name: "Criando senha root mysql"
+      become: yes
+      mysql_user:
+        name: "{{ USER }}"
+        host: localhost
+        password: "{{ PASSWORD }}"
+        priv: "*.*:ALL,GRANT"
+        state: present
+
+    - name: "Copia mysqld.cnf para os servidores"
+      copy:
+        src: "mysqld.cnf"
+        dest: "/etc/mysql/mysql.conf.d/mysqld.cnf"
+      become: yes
+
+    # - name: "Cria o banco de dados MySQL"
+    #   become: yes
+    #   mysql_db:
+    #     name: "{{ DATABASE }}"
+    #     login_user: "{{ USER }}"
+    #     login_password: "{{ PASSWORD }}"
+    #     state: present
+    #     ignore_errors: yes
+
+    - name: "Create dabatase"
+      become: yes
+      shell: mysql -u {{ USER }} -p'{{ PASSWORD }}' --execute="create database SpringWebYoutube;"
+
+    - name: "Libera permissão para acesso externo a database"
+      become: yes
+      shell: mysql -u {{ USER }} -p'{{ PASSWORD }}' --execute="CREATE USER '{{ USER }}'@'%' IDENTIFIED WITH mysql_native_password BY '{{ PASSWORD }}'; GRANT ALL PRIVILEGES ON *.* TO '{{ USER }}'@'%'; FLUSH PRIVILEGES;"
+
+    - name: "Restart mysql"
+      become: yes
+      shell: "service mysql restart"
+
+    - name: "Copia arquivo de dump para os servidores"
+      become: yes
+      copy:
+        src: "1.2-dump-mysql.sql"
+        dest: "/etc/mysql/1.2-dump-mysql.sql"
+    
+    - name: "Restaura dump"
+      become: yes
+      shell: mysql -u {{ USER }} -p'{{ PASSWORD }}' {{ DATABASE }} --execute="$(cat /etc/mysql/1.2-dump-mysql.sql)"

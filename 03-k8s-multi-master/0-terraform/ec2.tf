@@ -16,7 +16,7 @@ resource "aws_instance" "k8s_proxy" {
   root_block_device {
     delete_on_termination = true
     encrypted             = true
-    volume_size           = 8
+    volume_size           = 15
   }
 }
 
