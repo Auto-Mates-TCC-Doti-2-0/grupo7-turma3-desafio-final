@@ -1,0 +1,94 @@
+- hosts: 
+  - ec2-mysql-dev
+  tasks:
+    - name: "Configura hostname ec2-mysql-dev"
+      shell: hostname ec2-mysql-dev && echo "ec2-mysql-dev" > /etc/hostname
+      become: yes
+# ---
+- hosts: 
+  - ec2-mysql-stage
+
+  tasks:
+    - name: "Configura hostname ec2-mysql-stage"
+      shell: hostname ec2-mysql-stage && echo "ec2-mysql-stage" > /etc/hostname
+      become: yes
+# ---
+- hosts: 
+  - ec2-mysql-prod
+  tasks:
+    - name: "Configura hostname ec2-mysql-prod"
+      shell: hostname ec2-mysql-prod && echo "ec2-mysql-prod" > /etc/hostname
+      become: yes
+# ---
+- hosts: all
+  environment:
+    PASSWORD: "{{ lookup('env', 'PASSWORD') }}"
+    DATABASE: "{{ lookup('env', 'DATABASE') }}"
+    USER: "{{ lookup('env', 'USER') }}"
+
+  tasks:  
+    - name: "Roda: sudo apt update"
+      become: yes
+      apt:
+        upgrade: yes
+        update_cache: yes
+        cache_valid_time: 86400 #Um dia
+    
+    - name: "Aguarda finalizar o update"
+      shell: "sleep 15"
+
+    - name: "Instala pacotes em lote"
+      apt:
+        name: "{{ item }}"
+        state: latest
+      become: yes
+      with_items:
+        - mysql-server
+        - python3-mysqldb
+      
+    
+    - name: "Lavanta serviço do mysql"
+      become: yes
+      service:
+        name: mysql
+        state: started
+
+    - name: "Criando senha root mysql"
+      become: yes
+      mysql_user:
+        name: "{{ lookup('env', 'USER') }}"
+        host: localhost
+        password: "{{ lookup('env', 'PASSWORD') }}"
+        priv: "*.*:ALL,GRANT"
+        state: present
+
+    - name: "Copia mysqld.cnf para os servidores"
+      copy:
+        src: "mysqld.cnf"
+        dest: "/etc/mysql/mysql.conf.d/mysqld.cnf"
+      become: yes
+
+    - name: "Cria o banco de dados MySQL"
+      mysql_db:
+        name: "{{ lookup('env', 'DATABASE') }}"
+        login_user: "{{ lookup('env', 'USER') }}"
+        login_password: "{{ lookup('env', 'PASSWORD') }}"
+        state: present
+
+    - name: "Libera permissão para acesso externo a database"
+      become: yes
+      shell: "mysql -u {{ lookup('env', 'USER') }} -p'{{ lookup('env', 'PASSWORD') }}' --execute=\"CREATE USER '{{ lookup('env', 'USER') }}'@'%' IDENTIFIED WITH mysql_native_password BY '{{ lookup('env', 'PASSWORD') }}'; GRANT ALL PRIVILEGES ON *.* TO '{{ lookup('env', 'USER') }}'@'%'; FLUSH PRIVILEGES;\""
+
+    - name: "Restart mysql"
+      become: yes
+      shell: "service mysql restart"
+
+    - name: "Copia arquivo de dump para os servidores"
+      become: yes
+      copy:
+        src: "1.2-dump-mysql.sql"
+        dest: "/etc/mysql/1.2-dump-mysql.sql"
+    
+    - name: "Restaura dump"
+      become: yes
+      shell: mysql -u {{ lookup('env', 'USER') }} -p'{{ lookup('env', 'PASSWORD') }}' {{ lookup('env', 'DATABASE') }} $(cat /etc/mysql/1.2-dump-mysql.sql)

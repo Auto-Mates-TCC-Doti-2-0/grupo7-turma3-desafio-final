@@ -1,0 +1,32 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'ami_id', defaultValue: '', description: 'Digite o ID da AMI que será utilizad para o deploy')
+        string(name: 'USER', defaultValue: '', description: 'Digite o usuario do banco de dados "root"')
+        string(name: 'PASSWORD', defaultValue: '', description: 'Digite a senha do banco de dados "Senha&12_torne00"')
+        string(name: 'DATABASE', defaultValue: '', description: 'Digite o nome da database "SpringWebYoutube"')
+    } 
+    stages {
+        stage('Git Checkout') {
+            steps {
+                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
+            }
+        }
+        stage('Constroi instancia ec2 priv - MySQL') {
+            steps {
+                sh "./deploy.sh"
+            }
+        }
+        stage('Realiza configuracao da instancia e do Mysql') {
+            steps {
+                sh "./config-mysql.sh"
+            }
+        }
+        stage('Testa acesso ao mysql e valida realização do dump') {
+            steps {
+                sh "./teste-mysql.sh"
+            }
+        }               
+    }
+}
