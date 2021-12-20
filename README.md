@@ -14,7 +14,7 @@
  <a href="#agradecimento">Agradecimento</a>
 </p>
 
-**Status do Projeto: Concluido :heavy_check_mark:**
+**Status do Projeto: Concluido até Mysql :heavy_check_mark:** - Deploy Apps em Andamento
 
 ## Objetivo do projeto
 
