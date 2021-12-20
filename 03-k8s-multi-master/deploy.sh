@@ -18,11 +18,14 @@ cd 0-terraform
 terraform init
 TF_VAR_ami_id=$ami_id terraform apply -auto-approve
 
-# echo  "Aguardando 10 segundos para finalizar a criação das maquinas ..."
-# sleep 10
+echo  "Aguardando 10 segundos para finalizar a criação das maquinas ..."
+sleep 10
 
-SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
-# SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+if [ -z $SSH_KEY_PATH ]; then
+    SSH_KEY_PATH="/home/ubuntu/.ssh/chave-privada.pem"
+fi
+# SSH_KEY_PATH="~/.ssh/key-pair-grupo7"
+
 ID_M1=$(terraform output | grep 'k8s-master 1 -' | awk '{print $4;exit}')
 ID_M1_DNS=$(terraform output | grep 'k8s-master 1 -' | awk '{print $9;exit}' | cut -b 8-)
 
@@ -133,18 +136,18 @@ ff02::3 ip6-allhosts
 
 cd ../2-ansible
 
-ANSIBLE_OUT=$(ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionar.yml -u ubuntu --private-key $SSH_KEY_PATH)
-# ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionar.yml -u ubuntu --private-key $SSH_KEY_PATH
+# ANSIBLE_OUT=$(ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionar.yml -u ubuntu --private-key $SSH_KEY_PATH)
+# # ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts provisionar.yml -u ubuntu --private-key $SSH_KEY_PATH
 
-### Mac ###
-K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
-K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
-### Linix ###
-K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
-K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
+# ### Mac ###
+# K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
+# K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oE "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
+# ### Linix ###
+# K8S_JOIN_MASTER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?certificate-key.*?)'" | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/,//g")
+# K8S_JOIN_WORKER=$(echo $ANSIBLE_OUT | grep -oP "(kubeadm join.*?discovery-token-ca-cert-hash.*?)'" | head -n 1 | sed 's/\\//g' | sed "s/'t//g" | sed "s/'//g" | sed "s/'//g" | sed "s/,//g")
 
-echo $K8S_JOIN_MASTER
-echo $K8S_JOIN_WORKER
+# echo $K8S_JOIN_MASTER
+# echo $K8S_JOIN_WORKER
 
 cat <<EOF > 2-provisionar-k8s-master-auto-shell.yml
 - hosts:
@@ -190,4 +193,18 @@ cat <<EOF > 2-provisionar-k8s-master-auto-shell.yml
         msg: " '{{ ps.stdout_lines }}' "
 EOF
 
-ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts 2-provisionar-k8s-master-auto-shell.yml -u ubuntu --private-key $SSH_KEY_PATH
+# ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts 2-provisionar-k8s-master-auto-shell.yml -u ubuntu --private-key $SSH_KEY_PATH
+
+cat <<SCRIPTTESTE > ../teste.sh
+#!/bin/bash
+echo "Validando status dos nodes"
+STATUS_NODES=\$(ssh -i $SSH_KEY_PATH -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@$ID_M1_DNS sudo kubectl get nodes -o wide)
+echo "\$STATUS_NODES"
+
+if \$(echo \$STATUS_NODES| grep -q NotReady) ; then
+    echo "Um ou mais nodes com status NotReady"
+else
+    echo "Todos os nodes estão com status Ready"
+fi
+SCRIPTTESTE
+chmod +x ../teste.sh
