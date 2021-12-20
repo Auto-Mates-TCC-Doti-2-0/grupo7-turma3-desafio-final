@@ -1,18 +1,16 @@
 pipeline {
     agent any
-
-    // parameters {
-    //     password(name: 'DB_PASSWORD', defaultValue: '', description: 'Senha do database')  
-    //     string(name: 'SQL_DEV', defaultValue: '', description: 'IP do database de DEV')
-    //     string(name: 'SQL_STAG', defaultValue: '', description: 'IP do database de DEV')
-    //     string(name: 'SQL_PROD', defaultValue: '', description: 'IP do database de DEV')
-    // }
+    parameters {
+        password(name: 'DB_PASSWORD', defaultValue: '', description: 'Senha do database')  
+        string(name: 'SQL_DEV', defaultValue: '', description: 'IP do database de DEV')
+    }
 
     stages {
-        
-        stage('Clone Infra') {
+        stage('Git Checkout') {
             steps {
-                git url: 'https://github.com/ericohortolan/projetofinalGamaThree', branch: 'main'
+                git credentialsId: 'git-ssh-private-key',
+                    url: 'git@github.com:Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', 
+                    branch: 'main'
             }
         }
 
@@ -37,7 +35,7 @@ pipeline {
 
         stage('Test App') {
             steps {
-                sh "export USER=root && export PASSWORD=\"$DB_PASSWORD\" && export DATABASE_URL='mysql://$SQL_DEV:3306/SpringWebYoutubeTest?useTimezone=true&serverTimezone=UTC' && cd app-code && ./mvnw test"
+                sh "export USER=root && export PASSWORD=${DB_PASSWORD} && export DATABASE_URL='mysql://${SQL_DEV}:3306/SpringWebYoutube?useTimezone=true&serverTimezone=UTC' && cd app-code && ./mvnw test"
                 echo 'Testing....'
                 //sh 'nohup ./start.sh &'
                 //echo ' Starting....'
@@ -46,29 +44,32 @@ pipeline {
 
         stage('Create and Push Docker image') {
             steps {
-                sh "cd app-code && docker build -t ericovh/projetofinal-spr-web -f Dockerfile . && docker push ericovh/projetofinal-spr-web"
-                echo 'pushing docker image..'
+                script {
+                    VERSAO = sh(returnStdout: true, script: "git describe --tags \$(git rev-list --tags --max-count=1)")
+                    sh "cd app-code && docker build -t ocontini/desafio-devops-gama:${VERSAO} -f Dockerfile . && docker push ocontini/desafio-devops-gama:${VERSAO}"
+                    echo 'pushing docker image..'
+                }
             }
         }
 
         stage('Deploy Dev') {
             steps {
-                sh 'chmod +x 05-pipelineAPP/deployDev.sh'
-                sh "05-pipelineAPP/deployDev.sh"
+                sh 'chmod +x 05-pipelineAPP/deployApp.sh'
+                sh "05-pipelineAPP/deployApp.sh dev"
             }
         }
 
         stage('Deploy Stag') {
             steps {
-                sh 'chmod +x 05-pipelineAPP/deployStag.sh'
-                sh "05-pipelineAPP/deployStag.sh"
+                sh 'chmod +x 05-pipelineAPP/deployApp.sh'
+                sh "05-pipelineAPP/deployApp.sh stage"
             }
         }
 
         stage('Deploy Prod') {
             steps {
-                sh 'chmod +x 05-pipelineAPP/deployProd.sh'
-                sh "05-pipelineAPP/deployProd.sh"
+                sh 'chmod +x 05-pipelineAPP/deployApp.sh'
+                sh "05-pipelineAPP/deployApp.sh prod"
             }
         }
     }
