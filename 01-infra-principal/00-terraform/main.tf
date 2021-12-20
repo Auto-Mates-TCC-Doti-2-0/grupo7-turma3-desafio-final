@@ -88,6 +88,28 @@ resource "aws_nat_gateway" "natgw_main" {
   }
 }
 
+resource "aws_route_table" "natgw_rtb_main" {
+  for_each = aws_nat_gateway.natgw_main
+  vpc_id = aws_vpc.vpc_main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = each.value.id
+  }
+
+  tags = {
+    Name  = "natgw_rtb_main"
+    Group = "Grupo7"
+  }
+}
+
+resource "aws_route_table_association" "rtb_association_natgw_priv_subnets" {
+  for_each = aws_route_table.natgw_rtb_main
+
+  subnet_id      = aws_subnet.subnet_priv[each.key].id
+  route_table_id = each.value.id
+}
+
 ### SSH Keypair
 resource "aws_key_pair" "key_pair_grupo7" {
   key_name   = "key_pair_grupo7"
