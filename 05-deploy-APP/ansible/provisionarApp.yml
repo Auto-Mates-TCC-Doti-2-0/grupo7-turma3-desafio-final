@@ -1,0 +1,25 @@
+- hosts: all
+  become: yes
+  tasks:
+    
+    - name: "Upload k8s-deploy"
+      copy:
+        src: "k8s-deploy"
+        dest: "~/"
+
+    - name: "Aplicar configmap {{ environment }}"
+      shell: kubectl apply -f ~/k8s-deploy/mysql-configmap-{{ environment }}.yml
+
+    - name: "Aplicar secret"
+      shell: kubectl apply -f ~/k8s-deploy/mysql-secret.yml
+
+    - name: "Aplicar deployment {{ environment }}"
+      shell: kubectl apply -f ~/k8s-deploy/deployment-{{ environment }}.yml
+
+    - name: "Aplicar nodeport {{ environment }}"
+      shell: kubectl apply -f ~/k8s-deploy/nodeport-javadb-{{ environment }}.yml
+
+    - shell: "kubectl get pods | grep java-deployment-{{ environment }}"
+      register: ps
+    - debug:
+        msg: " '{{ ps.stdout_lines }}' "

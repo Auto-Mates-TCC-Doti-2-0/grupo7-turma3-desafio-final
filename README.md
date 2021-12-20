@@ -1,4 +1,8 @@
-# Desafio Treinamento Devops Grupo Auto-Mates
+# Grupo7 - Auto-Mates
+
+![](https://www.pngrepo.com/png/249750/512/networking-web-development.png)
+
+## Desafio Treinamento Devops 
 </h3>
 <p align="center">
  <a href="#objetivodoprojeto">Objetivo do projeto</a> |
