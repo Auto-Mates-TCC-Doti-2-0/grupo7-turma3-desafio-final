@@ -15,8 +15,8 @@ then
 fi
 
 cd  03-k8s-multi-master/0-terraform
-terraform init
-TF_VAR_ami_id=$ami_id terraform apply -auto-approve
+terraform init -no-color
+TF_VAR_ami_id=$ami_id terraform apply -auto-approve -no-color
 
 echo  "Aguardando 10 segundos para finalizar a criação das maquinas ..."
 sleep 10

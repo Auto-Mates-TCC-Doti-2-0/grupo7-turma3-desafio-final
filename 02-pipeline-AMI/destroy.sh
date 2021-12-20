@@ -7,8 +7,8 @@ destroy_ami() {
     RESOURCE_ID=$(terraform output | grep resource_id | awk '{print $2;exit}' | sed -e "s/\",//g")
 
     cd ../terraform-ami
-    terraform init
-    TF_VAR_versao=$VERSAO TF_VAR_resource_id=$RESOURCE_ID terraform destroy -auto-approve
+    terraform init -no-color
+    TF_VAR_versao=$VERSAO TF_VAR_resource_id=$RESOURCE_ID terraform destroy -auto-approve -no-color
 
     cd ../..
 }
@@ -18,4 +18,4 @@ if [ "$DESTROY_AMI" = true ] ; then
 fi
 
 cd 02-pipeline-AMI/terraform
-terraform destroy -auto-approve
+terraform destroy -auto-approve -no-color

@@ -5,8 +5,8 @@ if [ -z $SSH_KEY_PATH ]; then
 fi
 
 cd ./terraform
-terraform init
-TF_VAR_ssh_key_path=$SSH_KEY_PATH TF_VAR_ami_id=$ami_id terraform apply -auto-approve
+terraform init -no-color
+TF_VAR_ssh_key_path=$SSH_KEY_PATH TF_VAR_ami_id=$ami_id terraform apply -auto-approve -no-color
 
 echo  "Aguardando a criação das maquinas ..."
 sleep 10

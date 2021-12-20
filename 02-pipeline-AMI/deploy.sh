@@ -6,8 +6,8 @@ fi
 
 
 cd 02-pipeline-AMI/terraform
-terraform init
-TF_VAR_ssh_key_path=$SSH_KEY_PATH terraform apply -auto-approve
+terraform init -no-color
+TF_VAR_ssh_key_path=$SSH_KEY_PATH terraform apply -auto-approve -no-color
 
 EC2_TEMPLATE_DNS=$(terraform output | grep public_dns | awk '{print $2;exit}' | sed -e "s/\",//g")
 
