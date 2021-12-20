@@ -2,7 +2,7 @@
   become: true
 
   tasks:
-    - name: "Roda: sudo apt update"
+    - name: "apt update"
       become: yes
       apt:
         upgrade: yes

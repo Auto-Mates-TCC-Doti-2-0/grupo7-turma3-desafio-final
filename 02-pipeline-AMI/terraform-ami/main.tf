@@ -1,24 +1,10 @@
-provider "aws" {
-  region = "sa-east-1"
-}
-
-resource "aws_ami_from_instance" "ami-jenkins" {
-  name               = "wes-terraform-jenkins-${var.versao}"
+resource "aws_ami_from_instance" "template-ami" {
+  name               = "template-ami-${var.versao}"
   source_instance_id = var.resource_id
-}
-
-variable "resource_id" {
-  type        = string
-  description = "Qual o ID da máquina?"
-}
-
-variable "versao" {
-  type        = string
-  description = "Qual versão da imagem?"
 }
 
 output "ami" {
   value = [
-    "AMI: ${aws_ami_from_instance.ami-jenkins.id}"
+    "AMI_ID: ${aws_ami_from_instance.template-ami.id}"
   ]
 }

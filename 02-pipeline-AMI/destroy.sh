@@ -1,4 +1,4 @@
 #!/bin/bash
 
-cd Build_AMI_AWS/terraform
+cd ./terraform
 terraform destroy -auto-approve

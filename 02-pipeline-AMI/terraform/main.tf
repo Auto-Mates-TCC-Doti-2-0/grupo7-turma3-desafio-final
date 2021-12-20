@@ -1,27 +1,34 @@
-provider "aws" {
-  region = "sa-east-1"
+data "aws_ami" "ami_ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+  }
+  owners = ["099720109477"]
 }
 
-resource "aws_instance" "dev_img_deploy_jenkins" {
-  ami           = "ami-0e66f5495b4efdd0f"
-  instance_type = "t2.large"
-  key_name      = var.key_id
-  subnet_id                   = var.subnet_id
+
+resource "aws_instance" "dev_img_deploy_template" {
+  ami                         = data.aws_ami.ami_ubuntu.id
+  instance_type               = "t2.large"
+  key_name                    = data.terraform_remote_state.infra_principal_remote_state.outputs.key_pair_name
+  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.pub_subnet_ids, 0)
   associate_public_ip_address = true
   root_block_device {
     encrypted   = true
     volume_size = 15
   }
   tags = {
-    Name = "wes_dev_img_deploy_jenkins"
+    Name = "ec2_ami_template"
   }
-  vpc_security_group_ids = [aws_security_group.acesso_jenkins_dev_img.id]
+  vpc_security_group_ids = [aws_security_group.acesso_template_dev_img.id]
 }
 
-resource "aws_security_group" "acesso_jenkins_dev_img" {
-  name        = "wes_acesso_jenkins_dev_img"
-  description = "acesso_jenkins_dev_img inbound traffic"
-  vpc_id      = var.vpc_id
+resource "aws_security_group" "acesso_template_dev_img" {
+  name        = "acesso_template_dev_img"
+  description = "acesso_template_dev_img inbound traffic"
+  vpc_id      = data.terraform_remote_state.infra_principal_remote_state.outputs.vpc_id
 
   ingress = [
     {
@@ -63,16 +70,16 @@ resource "aws_security_group" "acesso_jenkins_dev_img" {
   ]
 
   tags = {
-    Name = "wes-jenkins-dev-img-lab"
+    Name = "template-dev-img"
   }
 }
 
 # terraform refresh para mostrar o ssh
-output "dev_img_deploy_jenkins" {
+output "dev_img_deploy_template" {
   value = [
-    "resource_id: ${aws_instance.dev_img_deploy_jenkins.id}",
-    "public_ip: ${aws_instance.dev_img_deploy_jenkins.public_ip}",
-    "public_dns: ${aws_instance.dev_img_deploy_jenkins.public_dns}",
-    "ssh -i /var/lib/jenkins/.ssh/id_rsa ubuntu@${aws_instance.dev_img_deploy_jenkins.public_dns}"
+    "resource_id: ${aws_instance.dev_img_deploy_template.id}",
+    "public_ip: ${aws_instance.dev_img_deploy_template.public_ip}",
+    "public_dns: ${aws_instance.dev_img_deploy_template.public_dns}",
+    "ssh -i ${var.ssh_key_path} ubuntu@${aws_instance.dev_img_deploy_template.public_dns}"
   ]
 }

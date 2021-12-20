@@ -2,29 +2,31 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone repo') {
+        stage('Git Checkout') {
             steps {
-                git url: 'https://github.com/weslleyfs/Wes-Desafio-Final-DEVOPS.git', branch: 'main'
+                git url: 'https://github.com/Auto-Mates-TCC-Doti-2-0/grupo7-turma3-desafio-final.git', branch: 'main'
             }
         }
-        stage('Build EC2') {
+        stage('Constroi instancia EC2 Template') {
             steps {
-                sh "Build_AMI_AWS/deploy.sh"
+                sh "./deploy.sh"
             }
         }
-        stage('Build AMI') {
+        stage('Faz o build da nova AMI') {
             steps {
-                def ami_id = sh returnStdout: true, script "Build_AMI_AWS/package-ami.sh"
+                def ami_id = sh returnStdout: true, script "./build-ami.sh"
             }
         }
         stage('Valida AMI na AWS') {
             steps {
-                sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":"'
+                def versao = sh "git describe --tags $(git rev-list --tags --max-count=1)"
+                echo "Validando AMI versão $versao"
+                sh 'aws ec2 describe-images --image-id${ami_id} | grep "\"Name\":*${versao}"'
             }
         }
-        stage('Destroy Test EC2') {
+        stage('Destroi instancia EC2 template') {
             steps {
-                sh "Build_AMI_AWS/destroy.sh"
+                sh "./destroy.sh"
             }
         }
     }
