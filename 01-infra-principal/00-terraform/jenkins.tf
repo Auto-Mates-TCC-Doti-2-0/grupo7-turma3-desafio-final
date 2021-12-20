@@ -14,7 +14,7 @@ resource "aws_instance" "ec2_jenkins" {
   instance_type = "t2.large"
   subnet_id = aws_subnet.subnet_pub["subnet1"].id
   key_name      = aws_key_pair.key_pair_grupo7.key_name
-  # iam_instance_profile = "aws-cli-ec2" # Necessário associar manualmente via painel
+  # iam_instance_profile = "aws-cli-ec2" # Necessário associar manualmente via painel. comentar na primeira execução do código
   associate_public_ip_address = true
   root_block_device {
     delete_on_termination = true
@@ -26,6 +26,10 @@ resource "aws_instance" "ec2_jenkins" {
     Grupo = "Grupo7"
   }
   vpc_security_group_ids = ["${aws_security_group.sg_jenkins.id}"]
+
+  lifecycle {
+    ignore_changes = [iam_instance_profile]
+  }
 }
 
 resource "aws_security_group" "sg_jenkins" {
