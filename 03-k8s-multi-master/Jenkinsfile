@@ -12,6 +12,7 @@ pipeline {
         }
         stage("Prepara infra para o cluster K8S multi-master') {
             steps {
+                echo "construindo o cluster terraform utilizando a ami ${ami_id}"
                 sh "./deploy.sh"
             }
         }
