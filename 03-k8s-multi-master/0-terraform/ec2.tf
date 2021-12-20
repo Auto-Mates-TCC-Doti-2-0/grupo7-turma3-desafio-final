@@ -1,65 +1,92 @@
-data "aws_ami" "ami-ubuntu" {
-  most_recent = true
-
-  filter {
-    name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
-  }
-  owners = ["099720109477"]
-}
-
 resource "aws_instance" "k8s_proxy" {
-  ami           = data.aws_ami.ami-ubuntu.id
-  subnet_id = var.subnet-az-a
-  instance_type = "t2.medium"
-  key_name      = var.key_pair_name
+  count = 1
+
+  ami                         = var.ami_id
+  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.pub_subnet_ids, count.index)
+  instance_type               = "t3.medium"
+  key_name                    = data.terraform_remote_state.infra_principal_remote_state.outputs.key_pair_name
   associate_public_ip_address = true
+  vpc_security_group_ids      = [aws_security_group.acessos_haproxy.id]
+
   tags = {
-    Name = "k8s-haproxy-${var.meu_nome}"
+    Name = "k8s-haproxy"
+    Group = "Grupo7"
   }
+
   root_block_device {
     delete_on_termination = true
     encrypted             = true
     volume_size           = 8
   }
-  vpc_security_group_ids = [aws_security_group.acessos_haproxy.id]
 }
 
 resource "aws_instance" "k8s_masters" {
-  ami           = data.aws_ami.ami-ubuntu.id
+  count = 3 # não pode ser maior do que 3 - DT lógica de calculo das subnets
+
+  ami                         = var.ami_id
+  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.pub_subnet_ids, count.index)
+  instance_type               = "t3.large"
+  key_name                    = data.terraform_remote_state.infra_principal_remote_state.outputs.key_pair_name
   associate_public_ip_address = true
-  subnet_id = var.subnet-az-a
-  instance_type = "t2.large"
-  key_name      = var.key_pair_name
-  count         = 3
+  vpc_security_group_ids      = [aws_security_group.acessos_masters.id]
+
   tags = {
-    Name = "k8s-master-${count.index}-${var.meu_nome}"
+    Name = "k8s-master-${count.index}"
+    Group = "Grupo7"
   }
+
   root_block_device {
     delete_on_termination = true
     encrypted             = true
     volume_size           = 32
   }
-  vpc_security_group_ids = [aws_security_group.acessos_masters.id]
+
   depends_on = [
     aws_instance.k8s_workers,
   ]
 }
 
 resource "aws_instance" "k8s_workers" {
-  ami           = data.aws_ami.ami-ubuntu.id
-  instance_type = "t2.medium"
-  key_name      = var.key_pair_name
+  count = 3 # não pode ser maior do que 3 - DT lógica de calculo das subnets
+
+  ami                         = var.ami_id
+  subnet_id                   = lookup(data.terraform_remote_state.infra_principal_remote_state.outputs.pub_subnet_ids, count.index)
+  instance_type               = "t3.medium"
+  key_name                    = data.terraform_remote_state.infra_principal_remote_state.outputs.key_pair_name
   associate_public_ip_address = true
-  subnet_id = var.subnet-az-a
-  count         = 3
+  vpc_security_group_ids      = [aws_security_group.acessos_workers.id]
+
   root_block_device {
     delete_on_termination = true
     encrypted             = true
     volume_size           = 32
   }
+
   tags = {
-    Name = "k8s_workers-${count.index}-${var.meu_nome}"
+    Name = "k8s_workers-${count.index}"
+    Group = "Grupo7"
   }
-  vpc_security_group_ids = [aws_security_group.acessos_workers.id]
 }
+
+# locals {
+
+#   k8s_master_hostname = [for item in aws_instance.k8s_proxy : item.public_dns]
+#   k8s_master_dns = [for item in aws_instance.k8s_proxy : item.public_dns]
+  
+#   k8s_worker_hostname = [for item in aws_instance.k8s_proxy : item.public_dns]
+#   k8s_worker_dns = [for item in aws_instance.k8s_proxy : item.public_dns]
+
+#   k8s_proxy_dns = [for item in aws_instance.k8s_proxy : item.public_dns]
+
+#   ansible_hosts = <<ANSIBLEHOSTS
+
+
+#     [ec2-k8s-proxy]
+#     ${join("\n", local.k8s_proxy_dns)}
+#     ANSIBLEHOSTS
+
+# }
+# resource "local_file" "ansible_hosts"{
+#     filename = "../01-ansible/hosts"
+#     content = local.ansible_hosts
+# }

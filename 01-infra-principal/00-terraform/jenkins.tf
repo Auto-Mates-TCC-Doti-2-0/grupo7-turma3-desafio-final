@@ -82,21 +82,3 @@ resource "local_file" "ansible_hosts"{
     ${aws_instance.ec2_jenkins.public_dns}
     ANSIBLEHOSTS
 }
-
-# terraform refresh para mostrar o ssh
-output "ssh_pub_key_path" {
-  sensitive = true
-  description = "output para ser utilizado pelo script de destroy"
-  value = var.ssh_pub_key_path
-}
-
-output "jenkins" {
-  value = [
-    "jenkins",
-    "id: ${aws_instance.ec2_jenkins.id}",
-    "private: ${aws_instance.ec2_jenkins.private_ip}",
-    "public: ${aws_instance.ec2_jenkins.public_ip}",
-    "public_dns: ${aws_instance.ec2_jenkins.public_dns}",
-    "ssh -i ${trimsuffix(var.ssh_pub_key_path, ".pub")} ubuntu@${aws_instance.ec2_jenkins.public_dns}"
-  ]
-}
