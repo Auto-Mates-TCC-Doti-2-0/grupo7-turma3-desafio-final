@@ -196,12 +196,10 @@ ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i hosts 2-provisionar-k8s-mast
 
 cat <<SCRIPTTESTE > ../teste.sh
 #!/bin/bash
-echo "Validando status dos nodes"
 STATUS_NODES=\$(ssh -i $SSH_KEY_PATH -o ServerAliveInterval=60 -o StrictHostKeyChecking=no ubuntu@$ID_M1_DNS sudo kubectl get nodes -o wide)
-echo "\$STATUS_NODES"
 
 if \$(echo \$STATUS_NODES| grep -q NotReady) ; then
-    echo "Um ou mais nodes com status NotReady"
+    echo "ERRO: Um ou mais nodes com status NotReady"
 else
     echo "Todos os nodes estão com status Ready"
 fi
