@@ -9,7 +9,7 @@ terraform init -no-color
 TF_VAR_ssh_key_path=$SSH_KEY_PATH TF_VAR_ami_id=$ami_id terraform apply -auto-approve -no-color
 
 echo  "Aguardando a criação das maquinas ..."
-sleep 10
+sleep 30
 
 ID_DEV=$(terraform output | grep "ec2-mysql-dev -" | awk '{print $3}')
 ID_STAGE=$(terraform output | grep "ec2-mysql-stage -" | awk '{print $3}')
