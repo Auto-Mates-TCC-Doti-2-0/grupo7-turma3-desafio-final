@@ -119,4 +119,10 @@ resource "aws_key_pair" "key_pair_grupo7" {
     Name  = "key_pair_grupo7"
     Group = "Grupo7"
   }
+
+  lifecycle {
+    ignore_changes = [
+      public_key
+    ]
+  }
 }

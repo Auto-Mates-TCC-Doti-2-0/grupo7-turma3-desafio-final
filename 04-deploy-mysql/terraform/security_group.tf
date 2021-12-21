@@ -22,7 +22,7 @@ resource "aws_security_group" "acessos_mysql" {
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       protocol         = "tcp"
-      security_groups  = [data.terraform_remote_state.infra_k8s_nodes.outputs.k8s_master_sg_id, data.terraform_remote_state.infra_k8s_nodes.outputs.k8s_worker_sg_id]
+      security_groups  = [data.terraform_remote_state.infra_k8s_nodes.outputs.k8s_master_sg_id, data.terraform_remote_state.infra_k8s_nodes.outputs.k8s_worker_sg_id, data.terraform_remote_state.infra_principal_remote_state.outputs.sg_jenkins_id]
       self             = false
       to_port          = 3306
     },

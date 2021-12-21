@@ -25,6 +25,12 @@ output "ssh_pub_key_path" {
   value = var.ssh_pub_key_path
 }
 
+output "sg_jenkins_id" {
+  sensitive = true
+  description = "ID do security group do jenkins para ser utilizado nas demais esteiras"
+  value = aws_security_group.sg_jenkins.id
+}
+
 output "jenkins" {
   value = [
     "jenkins",
